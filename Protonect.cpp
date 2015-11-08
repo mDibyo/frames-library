@@ -77,6 +77,71 @@ public:
   }
 };
 
+#ifdef SAVE_WITH_LIBPNG
+bool writeToFile2(int index, char* id, libfreenect2::Frame* frame)
+{
+  bool done = false;
+  char filename[40];
+  FILE *outFile;
+  png_structp png_ptr;
+  png_infop info_ptr;
+
+  std::sprintf(filename, "filebase_%s_%d.png", id, index);
+  outFile = fopen(filename, "wb");
+  if (!outFile)
+    return false;
+
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!png_ptr)
+  {
+    fclose(outFile);
+    return false;
+  }
+
+  info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr)
+  {
+    png_destroy_write_struct(&png_ptr, NULL);
+    fclose(outFile);
+    return false;
+  }
+
+  if (setjmp(png_jmpbuf(png_ptr)))
+  {
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fclose(outFile);
+    return false;
+  }
+
+  png_init_io(png_ptr, outFile);
+
+  png_set_IHDR(png_ptr, info_ptr, frame->width, frame->height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
+    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  // png_color_8 sig_bit;
+  // sig_bit.red = true_red_bit_depth;
+  // sig_bit.green = true_green_bit_depth;
+  // sig_bit.blue = true_blue_bit_depth;
+  // sig_bit.alpha = true_alpha_bit_depth;
+  // png_set_sbit(png_ptr, info_ptr, &sig_bit);
+
+  png_write_info(png_ptr, info_ptr);
+
+  png_set_bgr(png_ptr);
+
+  png_bytep row_pointers[frame->height];
+  for (int k = 0; k < frame->height; k++)
+  {
+    row_pointers[k] = frame->data + k * frame->width * frame->bytes_per_pixel;
+  }
+  png_write_image(png_ptr, row_pointers);
+
+  done = true;
+  png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+  fclose(outFile);
+  return done;
+}
+#endif
 
 bool writeToFile(int index, char* id, libfreenect2::Frame* frame)
 {
@@ -235,9 +300,15 @@ int main(int argc, char *argv[])
     registration->apply(rgb, depth, &undistorted, &registered);
 
     writeToFile((int) framecount, (char *) "rgb", rgb);
-    writeToFile((int) framecount, (char *) "ir", rgb);
-    writeToFile((int) framecount, (char *) "depth", rgb);
+    writeToFile((int) framecount, (char *) "ir", ir);
+    writeToFile((int) framecount, (char *) "depth", depth);
     writeToFile((int) framecount, (char *) "registered", &registered);
+
+#ifdef SAVE_WITH_LIBPNG
+    writeToFile2((int) framecount, (char *) "rgb", rgb);
+    writeToFile2((int) framecount, (char *) "depth", depth);
+    writeToFile2((int) framecount, (char *) "registered", &registered);
+#endif
 
     protonect_shutdown = true;
     listener.release(frames);
