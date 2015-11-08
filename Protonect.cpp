@@ -27,6 +27,8 @@
 /** @file Protonect.cpp Main application file. */
 
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <signal.h>
 
 #include <libfreenect2/libfreenect2.hpp>
@@ -69,6 +71,24 @@ public:
     logfile_ << "[" << libfreenect2::Logger::level2str(level) << "] " << message << std::endl;
   }
 };
+
+
+bool writeToFile(int index, char* id, libfreenect2::Frame* frame)
+{
+  std::cout << id << frame->bytes_per_pixel << frame->width << frame->height << '\n';
+  char filename[20];
+  std::sprintf(filename, "filebase_%s_%d", id, index);
+  std::cout << "Creating file " << filename << "\n";
+  std::ofstream file(filename, std::ios::binary);
+  if (!file.is_open())
+    return false;
+  for (int i = 0; i < frame->width * frame->height * frame->bytes_per_pixel; i++)
+    file << frame->data[i];
+  file.close();
+
+  return true;
+}
+
 
 /**
  * Main application entry point.
@@ -208,6 +228,15 @@ int main(int argc, char *argv[])
     libfreenect2::Frame *depth = frames[libfreenect2::Frame::Depth];
 
     registration->apply(rgb, depth, &undistorted, &registered);
+
+    writeToFile((int) framecount, "rgb", rgb);
+    writeToFile((int) framecount, "ir", rgb);
+    writeToFile((int) framecount, "depth", rgb);
+    writeToFile((int) framecount, "registered", &registered);
+
+    protonect_shutdown = true;
+    listener.release(frames);
+    continue;
 
     framecount++;
     if (!viewer_enabled)

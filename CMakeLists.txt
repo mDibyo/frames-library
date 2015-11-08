@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 PROJECT(freenect2_test)
 
+SET(CMAKE_BUILD_TYPE Debug)
+
 SET(PROJECT_LINK_LIBS libfreenect2.so)
 LINK_DIRECTORIES(/usr/local/lib)
 
