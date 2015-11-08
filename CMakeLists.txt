@@ -1,0 +1,11 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+PROJECT(freenect2_test)
+
+SET(PROJECT_LINK_LIBS libfreenect2.so)
+LINK_DIRECTORIES(/usr/local/lib)
+
+INCLUDE_DIRECTORIES(/usr/local/include)
+
+ADD_EXECUTABLE(Protonect Protonect.cpp)
+TARGET_LINK_LIBRARIES(Protonect ${PROJECT_LINK_LIBS})
+
