@@ -28,8 +28,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdio.h>
 #include <string>
 #include <signal.h>
+
+#ifdef SAVE_WITH_LIBPNG
+#include <png.h>
+#endif
 
 #include <libfreenect2/libfreenect2.hpp>
 #include <libfreenect2/frame_listener_impl.h>
@@ -229,10 +234,10 @@ int main(int argc, char *argv[])
 
     registration->apply(rgb, depth, &undistorted, &registered);
 
-    writeToFile((int) framecount, "rgb", rgb);
-    writeToFile((int) framecount, "ir", rgb);
-    writeToFile((int) framecount, "depth", rgb);
-    writeToFile((int) framecount, "registered", &registered);
+    writeToFile((int) framecount, (char *) "rgb", rgb);
+    writeToFile((int) framecount, (char *) "ir", rgb);
+    writeToFile((int) framecount, (char *) "depth", rgb);
+    writeToFile((int) framecount, (char *) "registered", &registered);
 
     protonect_shutdown = true;
     listener.release(frames);
