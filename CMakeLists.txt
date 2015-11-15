@@ -3,10 +3,14 @@ PROJECT(freenect2_test)
 
 SET(CMAKE_BUILD_TYPE Debug)
 
-FIND_PACKAGE(PNG REQUIRED)
+FIND_PACKAGE(PNG)
 
 SET(freenect2_LIBRARIES libfreenect2.so)
 LINK_DIRECTORIES(/usr/local/lib)
+
+SET(FRAME_LIB_SOURCES
+  frames_io.h
+  frames_io.cpp)
 
 INCLUDE_DIRECTORIES(/usr/local/include)
 
@@ -18,6 +22,10 @@ IF(PNG_FOUND)
   ADD_DEFINITIONS(-DSAVE_WITH_LIBPNG=1)
 ENDIF()
 
+ADD_LIBRARY(frame_library ${FRAME_LIB_SOURCES})
+
 ADD_EXECUTABLE(Protonect Protonect.cpp)
 TARGET_LINK_LIBRARIES(Protonect ${Protonect_LIBRARIES})
 
+ADD_EXECUTABLE(Recorder main.cpp)
+TARGET_LINK_LIBRARIES(Recorder ${Protonect_LIBRARIES} frame_library)

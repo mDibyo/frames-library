@@ -7,9 +7,7 @@
 #include <libfreenect2/frame_listener_impl.h>
 
 
-libfreenect2::Freenect2Device *device = 0;
-
-libfreenect2::SyncMultiFrameListener* openDeviceAndGetListener(libfreenect2::Frame::Type frame_types);
+int openDeviceAndAddListener(libfreenect2::SyncMultiFrameListener* listener);
 
 int closeDevice();
 
