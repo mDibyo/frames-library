@@ -14,22 +14,21 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, sigint_handler);
   kinect_shutdown = false;
 
-  libfreenect2::SyncMultiFrameListener listener(libfreenect2::Frame::Color | libfreenect2::Frame::Ir | libfreenect2::Frame::Depth);
-  if (openDeviceAndAddListener(&listener) != 0) {
-    std::cout << "Device not opening" << std::endl;
+  try {
+    FramesInputterFromDevice inputter;
+
+    libfreenect2::FrameMap frames;
+    while (!kinect_shutdown) {
+      inputter.getNextFrame(frames);
+
+      // deal with frames
+      std::cout << "Dealing with frames" << std::endl;
+    }
+  } catch (FramesIOException& exception) {
+    std::cout << "Could not initialize input. " << std::endl;
     return -1;
   }
 
-  libfreenect2::FrameMap frames;
-
-  while (!kinect_shutdown) {
-    listener.waitForNewFrame(frames);
-
-    // deal with frames
-    std::cout << "Dealing with frames" << std::endl;
-  }
-
-  closeDevice();
   return 0;
 }
 
