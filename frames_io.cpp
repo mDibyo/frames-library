@@ -1,20 +1,7 @@
-#include <iostream>
-#include <signal.h>
-
-#include <libfreenect2/libfreenect2.hpp>
-#include <libfreenect2/frame_listener_impl.h>
 #include "frames_io.h"
 
 
-bool kinect_shutdown = false;
-
-libfreenect2::Freenect2Device *device = 0;
-
-void sigint_handler(int s) {
-  kinect_shutdown = true;
-}
-
-libfreenect2::FrameListener* openDeviceAndGetListener(libfreenect2::Frame::Type frame_types) {
+libfreenect2::SyncMultiFrameListener* openDeviceAndGetListener(libfreenect2::Frame::Type frame_types) {
   libfreenect2::Freenect2 freenect2;
 
   if (freenect2.enumerateDevices() == 0) {
@@ -27,9 +14,6 @@ libfreenect2::FrameListener* openDeviceAndGetListener(libfreenect2::Frame::Type 
     std::cout << "failure opening device!" << std::endl;
     return NULL;
   }
-
-  signal(SIGINT, sigint_handler);
-  kinect_shutdown = false;
 
   libfreenect2::SyncMultiFrameListener listener(frame_types);
   //  libfreenect2::Frame::Type::Color
