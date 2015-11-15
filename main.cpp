@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 
   try {
     FramesInputterFromDevice inputter;
+//    FramesInputterFromDisk inputter("hello_");
 
     libfreenect2::FrameMap frames;
     while (!kinect_shutdown) {
