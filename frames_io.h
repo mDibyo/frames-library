@@ -14,7 +14,8 @@ const size_t FRAME_WIDTH = 1920,
 
 
 /**
- * Interface for classes that read frames into the system.
+ * Exception class thrown by constructors of frames inputter and outputter
+ * classes.
  */
 class FramesIOException : public std::runtime_error {
 public:
@@ -22,8 +23,14 @@ public:
 };
 
 
+/**
+ * Interface for classes that read frames into the system.
+ */
 class FramesInputter {
 public:
+  /**
+   * Read in the next set of frames from the input source.
+   */
   virtual bool getNextFrame(libfreenect2::FrameMap &) = 0;
 };
 
@@ -34,7 +41,9 @@ public:
 class FramesInputterFromDevice : public FramesInputter {
 public:
   FramesInputterFromDevice();
+
   ~FramesInputterFromDevice();
+
   bool getNextFrame(libfreenect2::FrameMap &);
 
 private:
@@ -50,7 +59,9 @@ private:
 class FramesInputterFromDisk : public FramesInputter {
 public:
   FramesInputterFromDisk(std::string);
+
   ~FramesInputterFromDisk();
+
   bool getNextFrame(libfreenect2::FrameMap &);
 
 private:
@@ -65,6 +76,9 @@ private:
  */
 class FramesOutputter {
 public:
+  /**
+   * Write out the next set of frames to the output source.
+   */
   virtual bool putNextFrame(libfreenect2::FrameMap &) = 0;
 };
 
@@ -75,6 +89,7 @@ public:
 class FramesOutputterToDisk : public FramesOutputter {
 public:
   FramesOutputterToDisk(std::string);
+
   bool putNextFrame(libfreenect2::FrameMap &);
 
 private:
