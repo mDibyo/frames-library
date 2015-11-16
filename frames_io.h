@@ -58,7 +58,9 @@ private:
  */
 class FramesInputterFromDisk : public FramesInputter {
 public:
-  FramesInputterFromDisk(std::string, size_t, size_t, size_t);
+  FramesInputterFromDisk(std::string, size_t=DEFAULT_FRAME_WIDTH,
+                         size_t=DEFAULT_FRAME_HEIGHT,
+                         size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
 
   ~FramesInputterFromDisk();
 

@@ -36,10 +36,7 @@ bool FramesInputterFromDevice::getNextFrame(libfreenect2::FrameMap &frames) {
 
 
 FramesInputterFromDisk::FramesInputterFromDisk(
-    std::string prefix,
-    size_t width=DEFAULT_FRAME_WIDTH,
-    size_t height=DEFAULT_FRAME_HEIGHT,
-    size_t bytes_per_pixel=DEFAULT_FRAME_BYTES_PER_PIXEL)
+    std::string prefix, size_t width, size_t height, size_t bytes_per_pixel)
     : input_prefix(prefix),
       current_frame_idx(-1),
       frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }

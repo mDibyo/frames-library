@@ -3,6 +3,8 @@
 
 #include <libfreenect2/frame_listener_impl.h>
 
+#include "frames_io.h"
+
 
 /**
  * Interface for classes that transform frames in place.
@@ -32,7 +34,9 @@ public:
  */
 class FramesPairwiseAbsDiffTransformer {
 public:
-  FramesPairwiseAbsDiffTransformer(size_t, size_t, size_t);
+  FramesPairwiseAbsDiffTransformer(size_t=DEFAULT_FRAME_WIDTH,
+                                   size_t=DEFAULT_FRAME_HEIGHT,
+                                   size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
 
   ~FramesPairwiseAbsDiffTransformer();
 
@@ -43,5 +47,19 @@ private:
   libfreenect2::Frame *prev_frame;
 };
 
+
+/**
+ * Class that zeros out all pixel values in a frame that are below a minimum
+ * threshold value.
+ */
+class FramesMinThresholdTransformer {
+public:
+  FramesMinThresholdTransformer(unsigned char);
+
+  bool transform(libfreenect2::FrameMap &);
+
+private:
+  unsigned char min_threshold;
+};
 
 #endif //FREENECT2_TEST_FRAMES_TRANSFORM_H

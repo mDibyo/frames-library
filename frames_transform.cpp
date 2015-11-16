@@ -2,13 +2,9 @@
 
 #include <string.h>
 
-#include "frames_io.h"
-
 
 FramesPairwiseAbsDiffTransformer::FramesPairwiseAbsDiffTransformer(
-    size_t width=DEFAULT_FRAME_WIDTH,
-    size_t height=DEFAULT_FRAME_HEIGHT,
-    size_t bytes_per_pixel=DEFAULT_FRAME_BYTES_PER_PIXEL)
+    size_t width, size_t height, size_t bytes_per_pixel)
     : has_prev(false),
       prev_frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }
 
@@ -36,5 +32,23 @@ bool FramesPairwiseAbsDiffTransformer::transform(libfreenect2::FrameMap &frames)
 
   prev_frame->data = new_frame_data;
   has_prev = true;
+  return true;
+}
+
+
+FramesMinThresholdTransformer::FramesMinThresholdTransformer(unsigned char threshold)
+    : min_threshold(threshold) { }
+
+bool FramesMinThresholdTransformer::transform(libfreenect2::FrameMap &frames) {
+  libfreenect2::Frame *frame = frames[libfreenect2::Frame::Color];
+  unsigned char *frame_data = frame->data;
+
+  int j, total;
+  for (size_t i = 0; i < frame->width * frame->height * frame->bytes_per_pixel; i++) {
+    if (frame_data[i] < min_threshold) {
+      frame_data[i] = 0;
+    }
+  }
+
   return true;
 }
