@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(freenect2_test)
+project(frames_library)
 set(CMAKE_BUILD_TYPE Debug)
 
 
@@ -16,13 +16,13 @@ if(PNG_FOUND)
 endif()
 
 
-add_library(frame_library
+add_library(Frames_LIBRARY
         frames_io.h
         frames_io.cpp
         frames_transform.h
         frames_transform.cpp)
-target_link_libraries(frame_library ${Protonect_LIBRARIES})
-target_include_directories(frame_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(Frames_LIBRARY ${Protonect_LIBRARIES})
+target_include_directories(Frames_LIBRARY PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(Recorder main.cpp)
-target_link_libraries(Recorder ${Protonect_LIBRARIES} frame_library)
+target_link_libraries(Recorder ${Protonect_LIBRARIES} Frames_LIBRARY)
