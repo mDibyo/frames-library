@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
     FramesOutputterToDiskPNG outputter("nonpendulum/rgb_");
 
     libfreenect2::FrameMap frames;
-    std::cout << frames.count(libfreenect2::Frame::Color) << std::endl;
     while (!program_shutdown) {
       if (!inputter.getNextFrame(frames)) {
         std::cout << "no more frames" << std::endl;
