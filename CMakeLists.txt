@@ -1,28 +1,28 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
-PROJECT(freenect2_test)
-SET(CMAKE_BUILD_TYPE Debug)
+cmake_minimum_required(VERSION 2.8.12)
+project(freenect2_test)
+set(CMAKE_BUILD_TYPE Debug)
 
 
-LINK_DIRECTORIES(/usr/local/lib)
-SET(freenect2_LIBRARIES libfreenect2.so)
+link_directories(/usr/local/lib)
+set(freenect2_LIBRARIES libfreenect2.so)
 
-SET(Protonect_LIBRARIES ${freenect2_LIBRARIES})
+set(Protonect_LIBRARIES ${freenect2_LIBRARIES})
 
-FIND_PACKAGE(PNG)
-IF(PNG_FOUND)
-  INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIRS})
-  LIST(APPEND Protonect_LIBRARIES ${PNG_LIBRARIES})
-  ADD_DEFINITIONS(-DSAVE_WITH_LIBPNG=1)
-ENDIF()
+find_package(PNG)
+if(PNG_FOUND)
+  include_directories(${PNG_INCLUDE_DIRS})
+  list(APPEND Protonect_LIBRARIES ${PNG_LIBRARIES})
+  add_definitions(-DSAVE_WITH_LIBPNG=1)
+endif()
 
 
-ADD_LIBRARY(frame_library
+add_library(frame_library
         frames_io.h
         frames_io.cpp
         frames_transform.h
         frames_transform.cpp)
-TARGET_LINK_LIBRARIES(frame_library ${Protonect_LIBRARIES})
-TARGET_INCLUDE_DIRECTORIES(frame_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(frame_library ${Protonect_LIBRARIES})
+target_include_directories(frame_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-ADD_EXECUTABLE(Recorder main.cpp)
-TARGET_LINK_LIBRARIES(Recorder ${Protonect_LIBRARIES} frame_library)
+add_executable(Recorder main.cpp)
+target_link_libraries(Recorder ${Protonect_LIBRARIES} frame_library)
