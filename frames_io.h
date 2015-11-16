@@ -8,9 +8,9 @@
 #include <libfreenect2/frame_listener_impl.h>
 
 
-const size_t FRAME_WIDTH = 1920,
-    FRAME_HEIGHT = 1080,
-    FRAME_BYTES_PER_PIXEL = 4;
+const size_t DEFAULT_FRAME_WIDTH = 1920,
+    DEFAULT_FRAME_HEIGHT = 1080,
+    DEFAULT_FRAME_BYTES_PER_PIXEL = 4;
 
 
 /**
@@ -58,7 +58,7 @@ private:
  */
 class FramesInputterFromDisk : public FramesInputter {
 public:
-  FramesInputterFromDisk(std::string);
+  FramesInputterFromDisk(std::string, size_t, size_t, size_t);
 
   ~FramesInputterFromDisk();
 

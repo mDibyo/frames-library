@@ -35,10 +35,14 @@ bool FramesInputterFromDevice::getNextFrame(libfreenect2::FrameMap &frames) {
 }
 
 
-FramesInputterFromDisk::FramesInputterFromDisk(std::string prefix)
+FramesInputterFromDisk::FramesInputterFromDisk(
+    std::string prefix,
+    size_t width=DEFAULT_FRAME_WIDTH,
+    size_t height=DEFAULT_FRAME_HEIGHT,
+    size_t bytes_per_pixel=DEFAULT_FRAME_BYTES_PER_PIXEL)
     : input_prefix(prefix),
       current_frame_idx(-1),
-      frame(new libfreenect2::Frame(FRAME_WIDTH, FRAME_HEIGHT, FRAME_BYTES_PER_PIXEL)) { }
+      frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }
 
 FramesInputterFromDisk::~FramesInputterFromDisk() {
   delete frame;
@@ -57,7 +61,7 @@ bool FramesInputterFromDisk::getNextFrame(libfreenect2::FrameMap &frames) {
     return false;
   }
 
-  int exp_filesize = FRAME_WIDTH * FRAME_HEIGHT * FRAME_BYTES_PER_PIXEL;
+  int exp_filesize = frame->width * frame->height * frame->bytes_per_pixel;
   if (file.tellg() != exp_filesize) {
     std::cout << "file not of the correct size" << std::endl;
     return false;
@@ -94,8 +98,9 @@ bool FramesOutputterToDisk::putNextFrame(libfreenect2::FrameMap & frames) {
     return false;
   }
 
-  int filesize = FRAME_WIDTH * FRAME_HEIGHT * FRAME_BYTES_PER_PIXEL;
-  file.write(reinterpret_cast<const char *>(frames[libfreenect2::Frame::Color]->data), filesize);
+  libfreenect2::Frame *frame = frames[libfreenect2::Frame::Color];
+  int filesize = frame->width * frame->height * frame->bytes_per_pixel;
+  file.write(reinterpret_cast<const char *>(frame->data), filesize);
 
   file.close();
   return true;

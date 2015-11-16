@@ -32,7 +32,7 @@ public:
  */
 class FramesPairwiseAbsDiffTransformer {
 public:
-  FramesPairwiseAbsDiffTransformer();
+  FramesPairwiseAbsDiffTransformer(size_t, size_t, size_t);
 
   ~FramesPairwiseAbsDiffTransformer();
 

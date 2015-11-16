@@ -5,16 +5,19 @@
 #include "frames_io.h"
 
 
-FramesPairwiseAbsDiffTransformer::FramesPairwiseAbsDiffTransformer()
+FramesPairwiseAbsDiffTransformer::FramesPairwiseAbsDiffTransformer(
+    size_t width=DEFAULT_FRAME_WIDTH,
+    size_t height=DEFAULT_FRAME_HEIGHT,
+    size_t bytes_per_pixel=DEFAULT_FRAME_BYTES_PER_PIXEL)
     : has_prev(false),
-      prev_frame(new libfreenect2::Frame(FRAME_WIDTH, FRAME_HEIGHT, FRAME_BYTES_PER_PIXEL)) { }
+      prev_frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }
 
 FramesPairwiseAbsDiffTransformer::~FramesPairwiseAbsDiffTransformer() {
   delete prev_frame;
 }
 
 bool FramesPairwiseAbsDiffTransformer::transform(libfreenect2::FrameMap &frames) {
-  size_t size = FRAME_WIDTH * FRAME_HEIGHT * FRAME_BYTES_PER_PIXEL;
+  size_t size = prev_frame->width * prev_frame->height * prev_frame->bytes_per_pixel;
   unsigned char *new_frame_data = frames[libfreenect2::Frame::Color]->data;
   unsigned char new_frame_data_copy[size];
   memcpy(new_frame_data_copy, new_frame_data, size);
