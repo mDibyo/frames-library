@@ -8,6 +8,11 @@
 #include <libfreenect2/frame_listener_impl.h>
 
 
+const size_t FRAME_WIDTH = 1920,
+    FRAME_HEIGHT = 1080,
+    FRAME_BYTES_PER_PIXEL = 4;
+
+
 class FramesIOException : public std::runtime_error {
 public:
   FramesIOException(std::string reason) : std::runtime_error(reason) { }
@@ -16,29 +21,32 @@ public:
 
 class FramesInputter {
 public:
-  virtual bool getNextFrame(libfreenect2::FrameMap) { }
+  virtual bool getNextFrame(libfreenect2::FrameMap &) = 0;
 };
 
 
 class FramesInputterFromDevice : public FramesInputter {
-  libfreenect2::Freenect2 freenect2;
-  libfreenect2::Freenect2Device *device;
-  libfreenect2::SyncMultiFrameListener *listener;
-
 public:
   FramesInputterFromDevice();
   ~FramesInputterFromDevice();
-  bool getNextFrame(libfreenect2::FrameMap);
+  bool getNextFrame(libfreenect2::FrameMap &);
+
+private:
+  libfreenect2::Freenect2 freenect2;
+  libfreenect2::Freenect2Device *device;
+  libfreenect2::SyncMultiFrameListener *listener;
 };
 
 
 class FramesInputterFromDisk : public FramesInputter {
-  std::string input_prefix;
-  int current_frame_idx;
-
 public:
   FramesInputterFromDisk(std::string prefix);
-  bool getNextFrame(libfreenect2::FrameMap);
+  bool getNextFrame(libfreenect2::FrameMap &);
+
+private:
+  std::string input_prefix;
+  int current_frame_idx;
+  libfreenect2::Frame *frame;
 };
 
 

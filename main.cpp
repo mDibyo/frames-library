@@ -3,24 +3,30 @@
 
 #include "frames_io.h"
 
-bool kinect_shutdown = false;
+bool program_shutdown = false;
 
 void sigint_handler(int s) {
-  kinect_shutdown = true;
+  program_shutdown = true;
 }
 
 int main(int argc, char *argv[]) {
   std::cout << "Starting up" << std::endl;
   signal(SIGINT, sigint_handler);
-  kinect_shutdown = false;
+  program_shutdown = false;
 
   try {
-    FramesInputterFromDevice inputter;
-//    FramesInputterFromDisk inputter("hello_");
+    // FramesInputterFromDevice inputter;
+    FramesInputterFromDisk inputter("pendulum/filebase_rgb_");
 
     libfreenect2::FrameMap frames;
-    while (!kinect_shutdown) {
-      inputter.getNextFrame(frames);
+    std::cout << frames.count(libfreenect2::Frame::Color) << std::endl;
+    while (!program_shutdown) {
+      if (!inputter.getNextFrame(frames)) {
+        std::cout << "no more frames" << std::endl;
+        break;
+      }
+
+      std::cout << "frame" << frames[libfreenect2::Frame::Color]->data << std::endl;
 
       // deal with frames
       std::cout << "Dealing with frames" << std::endl;
