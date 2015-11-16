@@ -100,4 +100,22 @@ private:
 };
 
 
-#endif //FREENECT2_TEST_FRAMES_IO_H
+#ifdef SAVE_WITH_LIBPNG
+/**
+ * Outputter class for writing out frames to disk as a PNG image.
+ */
+class FramesOutputterToDiskPNG : public FramesOutputter {
+public:
+  FramesOutputterToDiskPNG(std::string);
+
+  bool putNextFrame(libfreenect2::FrameMap &);
+
+private:
+  std::string output_prefix;
+  int current_frame_idx;
+};
+
+#endif // SAVE_WITH_LIBPNG
+
+
+#endif // FREENECT2_TEST_FRAMES_IO_H

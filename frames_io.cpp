@@ -2,6 +2,10 @@
 
 #include <fstream>
 
+#ifdef SAVE_WITH_LIBPNG
+#include <png.h>
+#endif
+
 
 FramesInputterFromDevice::FramesInputterFromDevice()
     : listener(new libfreenect2::SyncMultiFrameListener(libfreenect2::Frame::Color)) {
@@ -102,3 +106,69 @@ bool FramesOutputterToDisk::putNextFrame(libfreenect2::FrameMap & frames) {
   file.close();
   return true;
 }
+
+
+#ifdef SAVE_WITH_LIBPNG
+FramesOutputterToDiskPNG::FramesOutputterToDiskPNG(std::string prefix)
+    : output_prefix(prefix),
+      current_frame_idx(-1) { }
+
+bool FramesOutputterToDiskPNG::putNextFrame(libfreenect2::FrameMap &frames) {
+  if (frames.count(libfreenect2::Frame::Color) == 0) {
+    std::cout << "color frame not present" << std::endl;
+    return false;
+  }
+
+  current_frame_idx += 1;
+
+  char filename[256];
+  std::sprintf(filename, (output_prefix + "%d.png").c_str(), current_frame_idx);
+  std::cout << filename << std::endl;
+
+  FILE *file = fopen(filename, "wb");
+  if (!file) {
+    std::cout << "file could not be opened for writing" << std::endl;
+    return false;
+  }
+
+  png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!png_ptr) {
+    fclose(file);
+    return false;
+  }
+
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr) {
+    png_destroy_write_struct(&png_ptr, NULL);
+    fclose(file);
+    return false;
+  }
+
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fclose(file);
+    return false;
+  }
+
+  png_init_io(png_ptr, file);
+
+  libfreenect2::Frame *frame = frames[libfreenect2::Frame::Color];
+  png_set_IHDR(png_ptr, info_ptr, frame->width, frame->height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
+               PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  png_write_info(png_ptr, info_ptr);
+
+  png_set_bgr(png_ptr);
+
+  png_bytep row_pointers[frame->height];
+  for (int k = 0; k < frame->height; k++) {
+    row_pointers[k] = frame->data + k * frame->width * frame->bytes_per_pixel;
+  }
+  png_write_image(png_ptr, row_pointers);
+
+  png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+  fclose(file);
+  return true;
+}
+
+#endif // SAVE_WITH_LIBPNG

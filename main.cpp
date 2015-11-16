@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
   try {
     FramesInputterFromDisk inputter("pendulum/filebase_rgb_");
-    FramesOutputterToDisk outputter("nonpendulum/rgb_");
+    FramesOutputterToDiskPNG outputter("nonpendulum/rgb_");
 
     libfreenect2::FrameMap frames;
     std::cout << frames.count(libfreenect2::Frame::Color) << std::endl;
