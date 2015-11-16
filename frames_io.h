@@ -40,13 +40,31 @@ private:
 
 class FramesInputterFromDisk : public FramesInputter {
 public:
-  FramesInputterFromDisk(std::string prefix);
+  FramesInputterFromDisk(std::string);
+  ~FramesInputterFromDisk();
   bool getNextFrame(libfreenect2::FrameMap &);
 
 private:
   std::string input_prefix;
   int current_frame_idx;
   libfreenect2::Frame *frame;
+};
+
+
+class FramesOutputter {
+public:
+  virtual bool putNextFrame(libfreenect2::FrameMap &) = 0;
+};
+
+
+class FramesOutputterToDisk : public FramesOutputter {
+public:
+  FramesOutputterToDisk(std::string);
+  bool putNextFrame(libfreenect2::FrameMap &);
+
+private:
+  std::string output_prefix;
+  int current_frame_idx;
 };
 
 

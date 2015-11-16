@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   try {
     // FramesInputterFromDevice inputter;
     FramesInputterFromDisk inputter("pendulum/filebase_rgb_");
+    FramesOutputterToDisk outputter("nonpendulum/rgb_");
 
     libfreenect2::FrameMap frames;
     std::cout << frames.count(libfreenect2::Frame::Color) << std::endl;
@@ -26,10 +27,9 @@ int main(int argc, char *argv[]) {
         break;
       }
 
-      std::cout << "frame" << frames[libfreenect2::Frame::Color]->data << std::endl;
-
-      // deal with frames
-      std::cout << "Dealing with frames" << std::endl;
+      if (!outputter.putNextFrame(frames)) {
+        std::cout << "could not write out frame" << std::endl;
+      }
     }
   } catch (FramesIOException& exception) {
     std::cout << "Could not initialize input. " << std::endl;
