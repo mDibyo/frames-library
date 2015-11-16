@@ -13,6 +13,9 @@ const size_t FRAME_WIDTH = 1920,
     FRAME_BYTES_PER_PIXEL = 4;
 
 
+/**
+ * Interface for classes that read frames into the system.
+ */
 class FramesIOException : public std::runtime_error {
 public:
   FramesIOException(std::string reason) : std::runtime_error(reason) { }
@@ -25,6 +28,9 @@ public:
 };
 
 
+/**
+ * Inputter class from reading in frames from device.
+ */
 class FramesInputterFromDevice : public FramesInputter {
 public:
   FramesInputterFromDevice();
@@ -38,6 +44,9 @@ private:
 };
 
 
+/**
+ * Inputter class for reading in frames from disk.
+ */
 class FramesInputterFromDisk : public FramesInputter {
 public:
   FramesInputterFromDisk(std::string);
@@ -51,12 +60,18 @@ private:
 };
 
 
+/**
+ * Interface for classes that write frames out of the system.
+ */
 class FramesOutputter {
 public:
   virtual bool putNextFrame(libfreenect2::FrameMap &) = 0;
 };
 
 
+/**
+ * Outputter class for writing out frames to disk as a byte array.
+ */
 class FramesOutputterToDisk : public FramesOutputter {
 public:
   FramesOutputterToDisk(std::string);

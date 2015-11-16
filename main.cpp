@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
   program_shutdown = false;
 
   try {
-    // FramesInputterFromDevice inputter;
     FramesInputterFromDisk inputter("pendulum/filebase_rgb_");
     FramesOutputterToDisk outputter("nonpendulum/rgb_");
 
