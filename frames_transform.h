@@ -90,6 +90,10 @@ public:
   ~FramesNewPairwiseDistanceTransformer();
 
   bool transform(libfreenect2::FrameMap &, libfreenect2::FrameMap &);
+
+private:
+  bool has_prev;
+  libfreenect2::Frame *prev_frame;
 };
 
 #endif //FREENECT2_TEST_FRAMES_TRANSFORM_H
