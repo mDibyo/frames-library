@@ -54,6 +54,33 @@ bool FramesInplaceMinThresholdTransformer::transform(libfreenect2::FrameMap &fra
 }
 
 
+FramesInplaceMaskTransformer::FramesInplaceMaskTransformer(int maskAmount)
+    : maskAmount(maskAmount) { }
+
+
+bool FramesInplaceMaskTransformer::transform(libfreenect2::FrameMap &input_frames,
+                                             libfreenect2::FrameMap &added_frames) {
+  libfreenect2::Frame *input_frame = input_frames[libfreenect2::Frame::Color];
+  unsigned char *input_frame_data = input_frame->data;
+  unsigned char *added_frame_data = added_frames[libfreenect2::Frame::Color]->data;
+
+  int j, new_value;
+  for (size_t i = 0; i < input_frame->width * input_frame->height; i++) {
+    if (added_frame_data[i] == 0) {
+      for (j = 0; j < input_frame->bytes_per_pixel; j++) {
+        new_value = input_frame_data[i * input_frame->bytes_per_pixel + j] - maskAmount;
+        if (new_value >= 0) {
+          input_frame_data[i * input_frame->bytes_per_pixel + j] = new_value;
+        } else {
+          input_frame_data[i * input_frame->bytes_per_pixel + j] = 0;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+
 FramesNewPairwiseDistanceTransformer::FramesNewPairwiseDistanceTransformer(
     size_t width, size_t height, size_t bytes_per_pixel)
     : has_prev(false),

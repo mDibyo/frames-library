@@ -15,6 +15,7 @@ public:
    * Transform the set of frames in place.
    */
   virtual bool transform(libfreenect2::FrameMap &frames) = 0;
+  virtual bool transform(libfreenect2::FrameMap &input_frames, libfreenect2::FrameMap &added_frames) = 0;
 };
 
 
@@ -61,6 +62,21 @@ public:
 private:
   unsigned char min_threshold;
 };
+
+
+/**
+ * []
+ */
+class FramesInplaceMaskTransformer : public FramesInplaceTransformer {
+public:
+  FramesInplaceMaskTransformer(int);
+
+  bool transform(libfreenect2::FrameMap &, libfreenect2::FrameMap &);
+
+private:
+  int maskAmount;
+};
+
 
 
 /**
