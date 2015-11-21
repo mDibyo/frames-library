@@ -15,6 +15,17 @@ public:
    * Transform the set of frames in place.
    */
   virtual bool transform(libfreenect2::FrameMap &frames) = 0;
+};
+
+
+/**
+ * Interface for classes that transform frames in place.
+ */
+class FramesInplaceAddedTransformer {
+public:
+  /**
+   * Transform the set of frames in place, using an added frame.
+   */
   virtual bool transform(libfreenect2::FrameMap &input_frames, libfreenect2::FrameMap &added_frames) = 0;
 };
 
@@ -67,7 +78,7 @@ private:
 /**
  * []
  */
-class FramesInplaceMaskTransformer : public FramesInplaceTransformer {
+class FramesInplaceMaskTransformer : public FramesInplaceAddedTransformer {
 public:
   FramesInplaceMaskTransformer(int);
 

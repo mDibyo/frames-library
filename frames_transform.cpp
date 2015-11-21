@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <typeinfo>
 
 
 FramesInplacePairwiseAbsDiffTransformer::FramesInplacePairwiseAbsDiffTransformer(
@@ -68,11 +69,13 @@ bool FramesInplaceMaskTransformer::transform(libfreenect2::FrameMap &input_frame
   for (size_t i = 0; i < input_frame->width * input_frame->height; i++) {
     if (added_frame_data[i] == 0) {
       for (j = 0; j < input_frame->bytes_per_pixel; j++) {
-        new_value = input_frame_data[i * input_frame->bytes_per_pixel + j] - maskAmount;
-        if (new_value >= 0) {
-          input_frame_data[i * input_frame->bytes_per_pixel + j] = new_value;
-        } else {
-          input_frame_data[i * input_frame->bytes_per_pixel + j] = 0;
+        if (j == 3) {
+          new_value = input_frame_data[i * input_frame->bytes_per_pixel + j] - maskAmount;
+          if (new_value >= 0) {
+            input_frame_data[i * input_frame->bytes_per_pixel + j] = new_value;
+          } else {
+            input_frame_data[i * input_frame->bytes_per_pixel + j] = 0;
+          }
         }
       }
     }
@@ -84,9 +87,14 @@ bool FramesInplaceMaskTransformer::transform(libfreenect2::FrameMap &input_frame
 FramesNewPairwiseDistanceTransformer::FramesNewPairwiseDistanceTransformer(
     size_t width, size_t height, size_t bytes_per_pixel)
     : has_prev(false),
-      prev_frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }
+      prev_frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) {
+  unsigned char *frame_data;
+  frame_data = new unsigned char[width * height * bytes_per_pixel];
+  prev_frame->data = frame_data;
+}
 
 FramesNewPairwiseDistanceTransformer::~FramesNewPairwiseDistanceTransformer() {
+  delete prev_frame->data;
   delete prev_frame;
 }
 
@@ -105,7 +113,7 @@ bool FramesNewPairwiseDistanceTransformer::transform(libfreenect2::FrameMap &inp
       sum = 0;
       for (j = 0; j < prev_frame->bytes_per_pixel; j++) {
         diff = new_frame_data[i * prev_frame->bytes_per_pixel + j] -
-            prev_frame_data[i * prev_frame->bytes_per_pixel + j];
+               prev_frame_data[i * prev_frame->bytes_per_pixel + j];
         sum += diff * diff;
       }
       transformed_frame_data[i] = sqrt(sum);
@@ -114,7 +122,7 @@ bool FramesNewPairwiseDistanceTransformer::transform(libfreenect2::FrameMap &inp
     outputFrames[libfreenect2::Frame::Color] = transformed_frame;
   }
 
-  prev_frame->data = new_frame_data;
+  memcpy(prev_frame->data, new_frame_data, prev_frame->width * prev_frame->height * prev_frame -> bytes_per_pixel);
   has_prev = true;
   return true;
 }
