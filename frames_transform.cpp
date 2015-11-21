@@ -3,16 +3,16 @@
 #include <string.h>
 
 
-FramesPairwiseAbsDiffTransformer::FramesPairwiseAbsDiffTransformer(
+FramesInplacePairwiseAbsDiffTransformer::FramesInplacePairwiseAbsDiffTransformer(
     size_t width, size_t height, size_t bytes_per_pixel)
     : has_prev(false),
       prev_frame(new libfreenect2::Frame(width, height, bytes_per_pixel)) { }
 
-FramesPairwiseAbsDiffTransformer::~FramesPairwiseAbsDiffTransformer() {
+FramesInplacePairwiseAbsDiffTransformer::~FramesInplacePairwiseAbsDiffTransformer() {
   delete prev_frame;
 }
 
-bool FramesPairwiseAbsDiffTransformer::transform(libfreenect2::FrameMap &frames) {
+bool FramesInplacePairwiseAbsDiffTransformer::transform(libfreenect2::FrameMap &frames) {
   size_t size = prev_frame->width * prev_frame->height * prev_frame->bytes_per_pixel;
   unsigned char *new_frame_data = frames[libfreenect2::Frame::Color]->data;
   unsigned char new_frame_data_copy[size];
@@ -36,10 +36,10 @@ bool FramesPairwiseAbsDiffTransformer::transform(libfreenect2::FrameMap &frames)
 }
 
 
-FramesMinThresholdTransformer::FramesMinThresholdTransformer(unsigned char threshold)
+FramesInplaceMinThresholdTransformer::FramesInplaceMinThresholdTransformer(unsigned char threshold)
     : min_threshold(threshold) { }
 
-bool FramesMinThresholdTransformer::transform(libfreenect2::FrameMap &frames) {
+bool FramesInplaceMinThresholdTransformer::transform(libfreenect2::FrameMap &frames) {
   libfreenect2::Frame *frame = frames[libfreenect2::Frame::Color];
   unsigned char *frame_data = frame->data;
 

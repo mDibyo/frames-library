@@ -9,7 +9,7 @@
 /**
  * Interface for classes that transform frames in place.
  */
-class FramesTransformer {
+class FramesInplaceTransformer {
 public:
   /**
    * Transform the set of frames in place.
@@ -21,9 +21,9 @@ public:
 /**
  * Class that performs the identity transform.
  */
-class FramesIdentityTransformer {
+class FramesInplaceIdentityTransformer : public FramesInplaceTransformer {
 public:
-  static bool transform(libfreenect2::FrameMap & frames) { }
+  bool transform(libfreenect2::FrameMap & frames) { }
 };
 
 
@@ -32,13 +32,13 @@ public:
  * difference. The prior is considered to be a zero image and therefore the
  * first frame is not transformed.
  */
-class FramesPairwiseAbsDiffTransformer {
+class FramesInplacePairwiseAbsDiffTransformer : public FramesInplaceTransformer {
 public:
-  FramesPairwiseAbsDiffTransformer(size_t=DEFAULT_FRAME_WIDTH,
-                                   size_t=DEFAULT_FRAME_HEIGHT,
-                                   size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
+  FramesInplacePairwiseAbsDiffTransformer(size_t=DEFAULT_FRAME_WIDTH,
+                                          size_t=DEFAULT_FRAME_HEIGHT,
+                                          size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
 
-  ~FramesPairwiseAbsDiffTransformer();
+  ~FramesInplacePairwiseAbsDiffTransformer();
 
   bool transform(libfreenect2::FrameMap &);
 
@@ -52,14 +52,44 @@ private:
  * Class that zeros out all pixel values in a frame that are below a minimum
  * threshold value.
  */
-class FramesMinThresholdTransformer {
+class FramesInplaceMinThresholdTransformer : public FramesInplaceTransformer {
 public:
-  FramesMinThresholdTransformer(unsigned char);
+  FramesInplaceMinThresholdTransformer(unsigned char);
 
   bool transform(libfreenect2::FrameMap &);
 
 private:
   unsigned char min_threshold;
+};
+
+
+/**
+ * Interface for classes that transform frames and create new ones in the process.
+ */
+class FramesNewTransformer {
+public:
+  /**
+   * Transform the set of input frames and add results to the output set.
+   */
+  virtual bool transform(libfreenect2::FrameMap &inputFrames,
+                         libfreenect2::FrameMap &outputFrames) = 0;
+};
+
+
+/**
+ * Class that takes in pairs of consecutive frames and returns their pixel-wise
+ * euclidean distance. The prior is considered to be the first frame and therefore
+ * the first frame is not transformed.
+ */
+class FramesNewPairwiseDistanceTransformer : public FramesNewTransformer {
+public:
+  FramesNewPairwiseDistanceTransformer(size_t=DEFAULT_FRAME_WIDTH,
+                                       size_t=DEFAULT_FRAME_HEIGHT,
+                                       size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
+
+  ~FramesNewPairwiseDistanceTransformer();
+
+  bool transform(libfreenect2::FrameMap &, libfreenect2::FrameMap &);
 };
 
 #endif //FREENECT2_TEST_FRAMES_TRANSFORM_H
