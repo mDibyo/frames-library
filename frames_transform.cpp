@@ -98,9 +98,9 @@ FramesNewPairwiseDistanceTransformer::~FramesNewPairwiseDistanceTransformer() {
   delete prev_frame;
 }
 
-bool FramesNewPairwiseDistanceTransformer::transform(libfreenect2::FrameMap &inputFrames,
-                                                     libfreenect2::FrameMap &outputFrames) {
-  unsigned char *new_frame_data = inputFrames[libfreenect2::Frame::Color]->data;
+bool FramesNewPairwiseDistanceTransformer::transform(libfreenect2::FrameMap &input_frames,
+                                                     libfreenect2::FrameMap &output_frames) {
+  unsigned char *new_frame_data = input_frames[libfreenect2::Frame::Color]->data;
 
   if (has_prev) {
     unsigned char *prev_frame_data = prev_frame->data;
@@ -119,10 +119,44 @@ bool FramesNewPairwiseDistanceTransformer::transform(libfreenect2::FrameMap &inp
       transformed_frame_data[i] = sqrt(sum);
     }
     transformed_frame->data = transformed_frame_data;
-    outputFrames[libfreenect2::Frame::Color] = transformed_frame;
+    output_frames[libfreenect2::Frame::Color] = transformed_frame;
   }
 
   memcpy(prev_frame->data, new_frame_data, prev_frame->width * prev_frame->height * prev_frame -> bytes_per_pixel);
   has_prev = true;
+  return true;
+}
+
+
+FramesNewDownsizeTransformer::FramesNewDownsizeTransformer(int scale, size_t width, size_t height,
+                                                           size_t bytes_per_pixel)
+    : scale(scale),
+      transformed_frame(new libfreenect2::Frame(width/scale, height/scale, bytes_per_pixel)) {
+  unsigned char *transformed_frame_data;
+  transformed_frame_data = new unsigned char[width / scale * height / scale * bytes_per_pixel];
+  transformed_frame->data = transformed_frame_data;
+}
+
+FramesNewDownsizeTransformer::~FramesNewDownsizeTransformer() {
+  delete transformed_frame->data;
+  delete transformed_frame;
+}
+
+bool FramesNewDownsizeTransformer::transform(libfreenect2::FrameMap &input_frames,
+                                             libfreenect2::FrameMap &output_frames) {
+  libfreenect2::Frame *frame = input_frames[libfreenect2::Frame::Color];
+  unsigned char *frame_data = frame->data;
+  unsigned char *transformed_frame_data = transformed_frame->data;
+
+  int i, j, k;
+  for (i = 0; i < transformed_frame->height; i++) {
+    for (j = 0; j < transformed_frame->width; j++) {
+      for (k = 0; transformed_frame->bytes_per_pixel; k++) {
+        transformed_frame_data[(i * transformed_frame->width + j) * transformed_frame->bytes_per_pixel + k] =
+            frame_data[(i * frame->width + j) * transformed_frame->bytes_per_pixel * scale + k];
+      }
+    }
+  }
+  output_frames[libfreenect2::Frame::Color] = transformed_frame;
   return true;
 }

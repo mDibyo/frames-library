@@ -123,4 +123,20 @@ private:
   libfreenect2::Frame *prev_frame;
 };
 
+
+class FramesNewDownsizeTransformer : public FramesNewTransformer {
+public:
+  FramesNewDownsizeTransformer(int, size_t=DEFAULT_FRAME_WIDTH,
+                               size_t=DEFAULT_FRAME_HEIGHT,
+                               size_t=DEFAULT_FRAME_BYTES_PER_PIXEL);
+
+  ~FramesNewDownsizeTransformer();
+
+  bool transform(libfreenect2::FrameMap &, libfreenect2::FrameMap &);
+
+private:
+  int scale;
+  libfreenect2::Frame *transformed_frame;
+};
+
 #endif //FREENECT2_TEST_FRAMES_TRANSFORM_H
