@@ -62,6 +62,47 @@ void motion_unit(FramesInputter &inputter, FramesOutputter &outputter) {
   }
 }
 
+void downsampled_motion_unit(FramesInputter &inputter, FramesOutputter &outputter) {
+  libfreenect2::FrameMap frames, downsized_frames, derived_frames;
+
+  // transformers
+  int scale = 4;
+  FramesNewDownsizeTransformer downsize_transformer(scale);
+  FramesNewPairwiseDistanceTransformer distance_transformer(1920/scale, 1080/scale);
+  FramesInplaceMinThresholdTransformer threshold_transformer(30);
+  FramesInplaceMaskTransformer mask_transformer(100);
+
+  int frame_count = 0;
+  while (!program_shutdown) {
+    if (!inputter.getNextFrame(frames)) {
+      std::cout << "no more frames" << std::endl;
+      break;
+    }
+
+    clock_t start = clock();
+    downsize_transformer.transform(frames, downsized_frames);
+
+    std::cout << "finding distance" << std::endl;
+    distance_transformer.transform(downsized_frames, derived_frames);
+
+    if (frame_count > 0) {
+      std::cout << "thresholding" << std::endl;
+      threshold_transformer.transform(derived_frames);
+
+      std::cout << "masking" << std::endl;
+      mask_transformer.transform(downsized_frames, derived_frames);
+    }
+
+    std::cout << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
+
+    if (!outputter.putNextFrame(downsized_frames)) {
+      std::cout << "could not write out frame" << std::endl;
+    }
+
+    frame_count++;
+  }
+}
+
 int main(int argc, char *argv[]) {
   std::cout << "Starting up" << std::endl;
   signal(SIGINT, sigint_handler);
@@ -71,7 +112,7 @@ int main(int argc, char *argv[]) {
   FramesOutputterToDiskPNG outputter("pendulum_motion/rgb_");
 
   try {
-    motion_unit(inputter, outputter);
+    downsampled_motion_unit(inputter, outputter);
   } catch (FramesIOException& exception) {
     std::cout << "Could not initialize input. " << std::endl;
     return -1;

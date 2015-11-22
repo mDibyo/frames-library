@@ -133,8 +133,10 @@ FramesNewDownsizeTransformer::FramesNewDownsizeTransformer(int scale, size_t wid
     : scale(scale),
       transformed_frame(new libfreenect2::Frame(width/scale, height/scale, bytes_per_pixel)) {
   unsigned char *transformed_frame_data;
-  transformed_frame_data = new unsigned char[width / scale * height / scale * bytes_per_pixel];
+  transformed_frame_data = new unsigned char[width/scale * height/scale * bytes_per_pixel];
+  std::cout << width/scale * height/scale * bytes_per_pixel << std::endl;
   transformed_frame->data = transformed_frame_data;
+  std::cout << "its understood" << std::endl;
 }
 
 FramesNewDownsizeTransformer::~FramesNewDownsizeTransformer() {
@@ -151,7 +153,7 @@ bool FramesNewDownsizeTransformer::transform(libfreenect2::FrameMap &input_frame
   int i, j, k;
   for (i = 0; i < transformed_frame->height; i++) {
     for (j = 0; j < transformed_frame->width; j++) {
-      for (k = 0; transformed_frame->bytes_per_pixel; k++) {
+      for (k = 0; k < transformed_frame->bytes_per_pixel; k++) {
         transformed_frame_data[(i * transformed_frame->width + j) * transformed_frame->bytes_per_pixel + k] =
             frame_data[(i * frame->width + j) * transformed_frame->bytes_per_pixel * scale + k];
       }
